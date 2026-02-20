@@ -6,3 +6,36 @@ body {
   max-width: 38rem;
   padding: 2rem;
 }
+
+#transaction-list {
+  margin-top: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.transaction-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  transition: 0.2s;
+}
+
+.transaction-item:hover {
+  background: #f9f9f9;
+}
+
+.category-tag {
+  font-size: 0.8rem;
+  background: #e0f2f1;
+  color: #00796b;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.amount {
+  font-weight: bold;
+  color: #d32f2f;
+}

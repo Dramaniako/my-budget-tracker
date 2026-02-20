@@ -1,4 +1,5 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
+const storage = require('./data/storage');
 const path = require('path');
 
 function createWindow() {
@@ -14,6 +15,16 @@ function createWindow() {
 
     win.loadFile('src/ui/index.html');
 }
+
+ipcMain.on('add-transaction', (event, newTx) => {
+    const transactions = storage.read();
+    transactions.push({ ...newTx, id: Date.now() }); // Add unique ID
+    storage.save(transactions);
+});
+
+ipcMain.handle('get-transactions', () => {
+    return storage.read();
+});
 
 app.whenReady().then(createWindow);
 
