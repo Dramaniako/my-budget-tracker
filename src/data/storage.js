@@ -16,7 +16,17 @@ const storage = {
     // Save data to file
     save(transactions) {
         fs.writeFileSync(DATA_PATH, JSON.stringify(transactions, null, 2));
+    },
+
+    // Add this to your storage object in src/data/storage.js
+    delete(id) {
+        const transactions = this.read();
+        const filtered = transactions.filter(tx => tx.id !== id);
+        this.save(filtered);
+        return filtered;
     }
 };
+
+
 
 module.exports = storage;

@@ -16,14 +16,20 @@ function createWindow() {
     win.loadFile('src/ui/index.html');
 }
 
-ipcMain.on('add-transaction', (event, newTx) => {
+ipcMain.handle('add-transaction', (event, newTx) => {
     const transactions = storage.read();
-    transactions.push({ ...newTx, id: Date.now() }); // Add unique ID
+    const transactionWithId = { ...newTx, id: Date.now() }; // Generate ID here
+    transactions.push(transactionWithId);
     storage.save(transactions);
+    return transactionWithId; // Return the full object back to the UI
 });
 
 ipcMain.handle('get-transactions', () => {
     return storage.read();
+});
+
+ipcMain.handle('delete-transaction', (event, id) => {
+    return storage.delete(id);
 });
 
 app.whenReady().then(createWindow);

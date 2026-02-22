@@ -27,19 +27,37 @@ async function loadAndRender() {
 }
 
 function displayTransactions(list) {
+    const container = document.getElementById('transaction-list');
+
     if (!list || list.length === 0) {
-        elements.listContainer.innerHTML = '<p style="color: gray; text-align: center;">No transactions found.</p>';
+        container.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px;">No data found.</td></tr>';
         return;
     }
 
-    elements.listContainer.innerHTML = list.map(tx => `
-        <div class="transaction-item">
-            <span>${new Date(tx.date).toLocaleDateString()}</span>
-            <strong>${tx.description}</strong>
-            <span class="category-tag">${tx.category}</span>
-            <span class="amount">$${Number(tx.amount).toFixed(2)}</span>
-        </div>
-    `).join('');
+    // Wrap each set of TD tags in a TR tag
+    container.innerHTML = list.map(tx => {
+        const isIncome = tx.amount > 0;
+        const total = Math.abs(Number(tx.price) * Number(tx.amount));
+
+        return `
+            <tr>
+                <td>${new Date(tx.date).toLocaleDateString()}</td>
+                <td><strong>${tx.description}</strong></td>
+                <td><small class="category-tag">${tx.category}</small></td>
+                <td style="text-align: right;">Rp${Number(tx.price).toLocaleString('id-ID')}</td>
+                <td style="text-align: center;">x${Math.abs(tx.amount)}</td>
+                <td style="text-align: right;">
+                    ${isIncome ? '+' : '-'} 
+                    <span class="${isIncome ? 'income-text' : 'expense-text'}">
+                        Rp${total.toLocaleString('id-ID')}
+                    </span>
+                </td>
+                <td style="text-align: center;">
+                    <button class="delete-btn" data-id="${tx.id}">delete</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
 }
 
 function applyFilters() {
@@ -56,34 +74,81 @@ function applyFilters() {
     });
 
     displayTransactions(filtered);
+    updateTotalBalance();
+}
+
+function updateTotalBalance() {
+    const total = allTransactions.reduce((sum, tx) => {
+        return sum + (Number(tx.price) * Number(tx.amount));
+    }, 0);
+
+    const balanceElement = document.getElementById('balance-summary');
+
+    // We wrap the dynamic number in a span so we can color JUST the number
+    const formattedNumber = Math.abs(total).toLocaleString('id-ID');
+    const color = total >= 0 ? '#2ecc71' : '#e74c3c';
+    const sign = total >= 0 ? '' : '-';
+
+    balanceElement.innerHTML = `Total Balance: <span style="color: ${color}">${sign}Rp ${formattedNumber}</span>`;
+}
+
+function updateTotalBalance() {
+    // .reduce iterates through the array and adds up the 'amount' values
+    const total = allTransactions.reduce((sum, tx) => sum + (tx.amount * tx.price), 0);
+
+    const balanceElement = document.getElementById('balance-summary');
+    balanceElement.textContent = `Total Balance: Rp ${total.toLocaleString('id-ID')}`;
+
+    // UI Polish: Change color based on positive or negative balance
+    balanceElement.style.color = total >= 0 ? '#39a439' : '#ff4444';
 }
 
 // 4. EVENT HANDLERS
 elements.form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    // Get values from your new input fields
+    const type = document.getElementById('transaction-type').value;
+    const rawAmount = parseFloat(document.getElementById('amount').value) || 0;
+    const rawPrice = parseFloat(document.getElementById('price').value) || 0;
+
+    // Logic: Expenses are negative, Income/Allowance is positive
+    const finalAmount = type === 'expense' ? -Math.abs(rawAmount) : Math.abs(rawAmount);
+
     const newTx = {
         description: document.getElementById('desc').value,
-        amount: parseFloat(document.getElementById('amount').value),
+        amount: finalAmount,      // This is your Quantity (e.g., -1)
+        price: rawPrice,          // This is the cost per item (e.g., 5000)
         category: document.getElementById('category').value,
         date: new Date().toISOString()
     };
 
-    // 1. Send to "Back-end" (Main Process)
-    await window.budgetAPI.addTransaction(newTx);
+    const savedTx = await window.budgetAPI.addTransaction(newTx);
+    allTransactions.push(savedTx);
 
-    // 2. Update "Front-end" State
-    allTransactions.push(newTx);
-
-    // 3. Re-run Filters and Display
     applyFilters();
-
+    updateTotalBalance();
     elements.form.reset();
 });
 
 // 5. INITIALIZE
 [elements.search, elements.category, elements.date].forEach(el => {
     el.addEventListener('input', applyFilters);
+});
+
+elements.listContainer.addEventListener('click', async (e) => {
+    if (e.target.classList.contains('delete-btn')) {
+        const id = Number(e.target.dataset.id);
+
+        // 1. Tell the Back-end to delete from file
+        await window.budgetAPI.deleteTransaction(id);
+
+        // 2. Update the local State
+        allTransactions = allTransactions.filter(tx => tx.id !== id);
+
+        // 3. Re-render the UI
+        applyFilters();
+    }
 });
 
 loadAndRender();
