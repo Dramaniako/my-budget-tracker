@@ -11,6 +11,7 @@ const elements = {
 };
 
 document.getElementById('filter-btn').addEventListener('click', applyFilters);
+document.getElementById('export-btn').addEventListener('click', exportToExcel);
 
 // 2. STATE (Single Source of Truth)
 
@@ -75,6 +76,7 @@ function applyFilters() {
 
     displayTransactions(filtered);
     updateTotalBalance();
+    updateMonthlySummary();
 }
 
 function updateTotalBalance() {
@@ -102,6 +104,82 @@ function updateTotalBalance() {
     // UI Polish: Change color based on positive or negative balance
     balanceElement.style.color = total >= 0 ? '#39a439' : '#ff4444';
 }
+
+function updateMonthlySummary() {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    // Filter transactions for the current month only
+    const monthlyData = allTransactions.filter(tx => {
+        const txDate = new Date(tx.date);
+        return txDate.getMonth() === currentMonth && txDate.getFullYear() === currentYear;
+    });
+
+    let income = 0;
+    let expenses = 0;
+
+    monthlyData.forEach(tx => {
+        const totalValue = Number(tx.price) * Number(tx.amount);
+        if (totalValue > 0) {
+            income += totalValue;
+        } else {
+            expenses += Math.abs(totalValue);
+        }
+    });
+
+    const net = income - expenses;
+
+    // Update the UI
+    document.getElementById('monthly-income').textContent = `Rp ${income.toLocaleString('id-ID')}`;
+    document.getElementById('monthly-expenses').textContent = `Rp ${expenses.toLocaleString('id-ID')}`;
+
+    const netEl = document.getElementById('monthly-net');
+    netEl.textContent = `Rp ${net.toLocaleString('id-ID')}`;
+    netEl.className = net >= 0 ? 'income-text' : 'expense-text';
+}
+
+async function exportToExcel() {
+    if (allTransactions.length === 0) {
+        alert("No data to export!");
+        return;
+    }
+
+    // Use Semicolon (;) for better compatibility with Indonesian Excel
+    const sep = ";";
+    let csvContent = `Date${sep}Description${sep}Category${sep}Price${sep}Quantity${sep}Total\n`;
+
+    allTransactions.forEach(tx => {
+        const total = Number(tx.price) * Number(tx.amount);
+
+        // Clean the description to remove any semicolons that would break columns
+        const cleanDesc = tx.description.replace(/;/g, ' ');
+
+        const txDate = new Date(tx.date);
+        const formattedDate = txDate.toISOString().split('T')[0];
+
+        const row = [
+            formattedDate,
+            cleanDesc,
+            tx.category,
+            tx.price,
+            Math.abs(tx.amount),
+            total
+        ].join(sep);
+
+        csvContent += row + "\n";
+    });
+
+    // Add UTF-8 BOM so Excel recognizes special characters and formatting
+    const BOM = "\uFEFF";
+    const success = await window.budgetAPI.saveExport(BOM + csvContent);
+
+    if (success) {
+        alert("Exported successfully! You can now open this in Excel.");
+    }
+}
+
+// Ensure you call this inside your applyFilters() function so it updates live
 
 // 4. EVENT HANDLERS
 elements.form.addEventListener('submit', async (e) => {

@@ -17,6 +17,7 @@
     </select>
     <input type="date" id="filter-date">
     <button id="filter-btn">Apply Filters</button>
+    <button id="export-btn" style="background-color: #28a745;">Export to Excel</button>
   </section>
 
   <form id="budget-form">
@@ -36,6 +37,18 @@
     </select>
     <button type="submit">Add Transaction</button>
   </form>
+
+  <section class="monthly-summary">
+    <div class="summary-card">
+      <h3>This Month</h3>
+      <div class="summary-details">
+        <p>Income: <span id="monthly-income" class="income-text">Rp 0</span></p>
+        <p>Expenses: <span id="monthly-expenses" class="expense-text">Rp 0</span></p>
+        <hr>
+        <p>Net: <span id="monthly-net">Rp 0</span></p>
+      </div>
+    </div>
+  </section>
 
   <table class="styled-table">
     <thead>
