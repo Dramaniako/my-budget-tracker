@@ -1,112 +1,123 @@
-/* 1. GENERAL PAGE STYLING */
+/* 1. LAYOUT & GLOBAL STYLES */
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0 auto;
-  max-width: 1000px;
-  /* Increased to allow room for the table */
+  max-width: 1100px;
   padding: 2rem;
-  background-color: #ffffff;
+  background-color: #f8f9fa;
 }
 
 h1 {
   text-align: center;
-  margin-bottom: 20px;
+  color: #2c3e50;
+  margin-bottom: 30px;
 }
 
-/* 2. HEADER & SUMMARY */
-#balance-summary {
-  font-size: 1.5rem;
-  margin-bottom: 20px;
-  font-weight: bold;
-  text-align: center;
+/* 2. MONTHLY SUMMARY DASHBOARD */
+.monthly-summary {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
 }
 
-/* 3. FORM & FILTER STYLING */
+.summary-card {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  min-width: 350px;
+  border-top: 6px solid #007bff;
+}
+
+.summary-details p {
+  display: flex;
+  justify-content: space-between;
+  margin: 12px 0;
+  font-size: 1.2rem;
+  color: #444;
+}
+
+/* 3. FORM & FILTER BAR */
 #budget-form,
 .filter-bar {
   background: white;
   padding: 20px;
   border-radius: 8px;
   margin-bottom: 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
   justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 input,
 select,
 button {
-  padding: 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
 }
 
 button {
   background-color: #007bff;
   color: white;
-  cursor: pointer;
   border: none;
-  transition: background 0.2s;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
 }
 
 button:hover {
   background-color: #0056b3;
 }
 
-/* 4. THE TABLE - THIS FIXES THE COLUMN ALIGNMENT */
-table {
+/* 4. THE STYLED TABLE & ZEBRA STRIPES */
+.styled-table {
   width: 100%;
   border-collapse: collapse;
-  /* Essential: removes gaps between cells */
-  background-color: rgb(157, 155, 155);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  /* Essential for alignment */
+  background-color: white;
+  border-radius: 10px;
   overflow: hidden;
-  /* Clips corners */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* Table Headers */
-th {
+.styled-table thead tr {
   background-color: #343a40;
-  color: white;
-  font-weight: bold;
-  text-transform: uppercase;
-  font-size: 0.85rem;
-  padding: 15px;
-  text-align: middle;
+  color: #ffffff;
+  text-align: left;
 }
 
-/* Table Cells */
-td {
-  padding: 12px 15px;
-  border-bottom: 1px solid #eee;
-  vertical-align: middle;
+.styled-table th,
+.styled-table td {
+  padding: 15px 20px;
 }
 
-/* Row Hover Effect */
-tbody tr:hover {
-  background-color: #f1f1f1;
+/* THE ZEBRA STRIPE LOGIC */
+.styled-table tbody tr:nth-of-type(even) {
+  background-color: #f6f6f6 !important;
+  /* Light gray for every second row */
 }
 
-/* Numeric Column Alignment */
-/* Aligning prices and totals to the right makes them easier to compare */
-td:nth-child(4),
-th:nth-child(4),
-/* Price */
-td:nth-child(5),
-th:nth-child(5),
-/* Qty */
-td:nth-child(6),
-th:nth-child(6)
+.styled-table tbody tr:hover {
+  background-color: #959595 !important;
+  /* Highlight on hover */
+}
 
-/* Total */
-  {
+/* 5. COLUMN ALIGNMENT */
+/* Prices, Quantities, and Totals should be right-aligned */
+.styled-table th:nth-child(4),
+.styled-table td:nth-child(4),
+.styled-table th:nth-child(5),
+.styled-table td:nth-child(5),
+.styled-table th:nth-child(6),
+.styled-table td:nth-child(6) {
   text-align: right;
 }
 
-/* 5. COLOR LOGIC & UI ELEMENTS */
+/* 6. COLORS & UI */
 .income-text {
   color: #28a745;
   font-weight: bold;
@@ -119,54 +130,13 @@ th:nth-child(6)
 
 .category-tag {
   background: #e9ecef;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 0.8rem;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
   color: #495057;
 }
 
 .delete-btn {
   background-color: #dc3545;
-  padding: 5px 10px;
-  font-size: 0.75rem;
-}
-
-.delete-btn:hover {
-  background-color: #a71d2a;
-}
-
-.monthly-summary {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 25px;
-}
-
-.summary-card {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  min-width: 300px;
-  border-top: 5px solid #007bff;
-}
-
-.summary-card h3 {
-  text-align: center;
-  margin-bottom: 15px;
-  color: #555;
-  text-transform: uppercase;
-  font-size: 0.9rem;
-}
-
-.summary-details p {
-  display: flex;
-  justify-content: space-between;
-  margin: 8px 0;
-  font-size: 1.1rem;
-}
-
-.summary-details hr {
-  margin: 10px 0;
-  border: 0;
-  border-top: 1px solid #eee;
+  padding: 6px 12px;
 }
